@@ -7,36 +7,43 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 import skfuzzy as fuzz
 from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import LabelEncoder
 
 
 def load_data(file_path, delimiter=None):
     ext = os.path.splitext(file_path)[1].lower()
 
-    if ext == '.arff':
+    if ext== '.arff':
         data, _ = arff.loadarff(file_path)
         df = pd.DataFrame(data)
         for col in df.select_dtypes(include=[object]).columns:
             df[col] = df[col].apply(lambda x: x.decode('utf-8') if isinstance(x, bytes) else x)
-    elif ext == '.csv':
+    elif ext== '.csv':
         df = pd.read_csv(file_path)
-    elif ext == '.txt':
+    elif ext== '.txt':
         if delimiter is None:
-            df = pd.read_csv(file_path, sep=r'\s+')
+            df= pd.read_csv(file_path, sep=r'\s+')
         else:
             df = pd.read_csv(file_path, delimiter=delimiter)
     elif ext in ['.xls', '.xlsx']:
-        df = pd.read_excel(file_path)
+        df= pd.read_excel(file_path)
     else:
         raise ValueError(f"Unsupported file format: {ext}")
 
     # handling categorical variables
     categorical_cols = df.select_dtypes(include=['object', 'category']).columns
-    df = pd.get_dummies(df, columns=categorical_cols)
+    #for OHE
+    # df = pd.get_dummies(df, columns=categorical_cols)
+    
+    #for label encoding
+    for col in categorical_cols:
+        le = LabelEncoder()
+        df[col] = le.fit_transform(df[col])
 
     # numeric data only
     df_numeric = df.select_dtypes(include=[np.number])
     if df_numeric.empty:
-        raise ValueError("No numeric data available after preprocessing.")
+        raise ValueError("no numeric data")
     
     # missing values replaced with mean
     imputer = SimpleImputer(strategy='mean')
@@ -44,10 +51,8 @@ def load_data(file_path, delimiter=None):
 
     # data return 
     return df_numeric.to_numpy().T
-
-
 def apply_fcm(data, start_cluster, end_cluster):
-    """FCM clustering & visualize"""
+    #FCM clustering & visualize
     # scaling
     scaler = StandardScaler()
     data_scaled = scaler.fit_transform(data.T).T  # keeping (n_features, n_samples)
@@ -60,9 +65,8 @@ def apply_fcm(data, start_cluster, end_cluster):
         )
         cluster_labels = np.argmax(u, axis=0)
         plot_data(data_scaled.T, cluster_labels, cntr, n_clusters, fpc)
-
 def plot_data(data, labels, centers, n_clusters, fpc):
-    """Visualize clusters using PCA if needed."""
+    # PCA
     plt.figure(figsize=(10, 6))
     
     if data.shape[1] == 2:
