@@ -79,7 +79,7 @@ def plot_data(data, labels, centers, n_clusters, fpc):
         data_pca = pca.fit_transform(data)  # (n_samples, 2)
         centers_pca = pca.transform(centers)  # (n_clusters, 2)
         plt.scatter(data_pca[:, 0], data_pca[:, 1], c=labels, cmap='viridis', alpha=0.5)
-        plt.scatter(centers_pca[:, 0], centers_pca[:, 1], marker='X', s=200, c='red', edgecolor='k')
+        plt.scatter(centers_pca[:, 0], centers_pca[:, 1], marker='X', s= 200, c='red', edgecolor='k')
         plt.xlabel('PCA Component 1')
         plt.ylabel('PCA Component 2')
     
@@ -89,7 +89,7 @@ def plot_data(data, labels, centers, n_clusters, fpc):
 
 if __name__ == "__main__":
     # change according to the need
-    file_path = "google_review_ratings.csv"  # file path
+    file_path = "s1.txt"  # file path
     start_cluster_num = 2
     end_cluster_num = 5
 
